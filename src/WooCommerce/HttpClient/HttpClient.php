@@ -317,8 +317,8 @@ class HttpClient
                 $errorMessage = $errors[0]['message'];
                 $errorCode    = $errors[0]['code'];
             } else {
-                $errorMessage = $errors['message'];
-                $errorCode    = $errors['code'];
+                $errorMessage = isset($errors['message']) ? $errors['message'] : '';
+                $errorCode    = isset($errors['code']) ? $errors['code'] : '';
             }
 
             throw new HttpClientException(\sprintf('Error: %s [%s]', $errorMessage, $errorCode), $this->response->getCode(), $this->request, $this->response);
