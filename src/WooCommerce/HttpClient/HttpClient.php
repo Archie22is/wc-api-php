@@ -314,8 +314,8 @@ class HttpClient
             $errors = !empty($parsedResponse['errors']) ? $parsedResponse['errors'] : $parsedResponse;
 
             if (!empty($errors[0])) {
-                $errorMessage = $errors[0]['message'];
-                $errorCode    = $errors[0]['code'];
+                $errorMessage = isset($errors[0]['message']) ? $errors[0]['message'] : '';
+                $errorCode    = isset($errors[0]['code']) ? $errors[0]['code'] : '';
             } else {
                 $errorMessage = isset($errors['message']) ? $errors['message'] : '';
                 $errorCode    = isset($errors['code']) ? $errors['code'] : '';
