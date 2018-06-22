@@ -335,14 +335,14 @@ class HttpClient
     {
         // Any non-200/201/202 response code indicates an error.
         if (!\in_array($this->response->getCode(), ['200', '201', '202'])) {
-            $errors = isset($parsedResponse->errors) ? $parsedResponse->errors : $parsedResponse;
-
-            if (is_array($errors)) {
-                $errorMessage = isset($errors[0]->message) ? $errors[0]->message : '';
-                $errorCode    = isset($errors[0]->code) ? $errors[0]->code : '';
+            $errors = !empty($parsedResponse['errors']) ? $parsedResponse['errors'] : $parsedResponse;
+            
+            if (!empty($errors[0])) {
+                $errorMessage = isset($errors[0]['message']) ? $errors[0]['message'] : '';
+                $errorCode    = isset($errors[0]['code']) ? $errors[0]['code'] : '';
             } else {
-                $errorMessage = isset($errors->message) ? $errors->message : '';
-                $errorCode    = isset($errors->code) ? $errors->code : '';
+                $errorMessage = isset($errors['message']) ? $errors['message'] : '';
+                $errorCode    = isset($errors['code']) ? $errors['code'] : '';
             }
 
             throw new HttpClientException(
