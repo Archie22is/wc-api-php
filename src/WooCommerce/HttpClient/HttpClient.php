@@ -154,10 +154,24 @@ class HttpClient
     {
         // Setup authentication.
         if ($this->isSsl()) {
-            $basicAuth  = new BasicAuth($this->ch, $this->consumerKey, $this->consumerSecret, $this->options->isQueryStringAuth(), $parameters);
+            $basicAuth  = new BasicAuth(
+                $this->ch,
+                $this->consumerKey,
+                $this->consumerSecret,
+                $this->options->isQueryStringAuth(),
+                $parameters
+            );
             $parameters = $basicAuth->getParameters();
         } else {
-            $oAuth      = new OAuth($url, $this->consumerKey, $this->consumerSecret, $this->options->getVersion(), $method, $parameters, $this->options->oauthTimestamp());
+            $oAuth      = new OAuth(
+                $url,
+                $this->consumerKey,
+                $this->consumerSecret,
+                $this->options->getVersion(),
+                $method,
+                $parameters,
+                $this->options->oauthTimestamp()
+            );
             $parameters = $oAuth->getParameters();
         }
 
@@ -173,7 +187,7 @@ class HttpClient
     {
         if ('POST' == $method) {
             \curl_setopt($this->ch, CURLOPT_POST, true);
-        } else if (\in_array($method, ['PUT', 'DELETE', 'OPTIONS'])) {
+        } elseif (\in_array($method, ['PUT', 'DELETE', 'OPTIONS'])) {
             \curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $method);
         }
     }
@@ -227,7 +241,13 @@ class HttpClient
             \curl_setopt($this->ch, CURLOPT_POSTFIELDS, $body);
         }
 
-        $this->request = new Request($this->buildUrlQuery($url, $parameters), $method, $parameters, $this->getRequestHeaders($hasData), $body);
+        $this->request = new Request(
+            $this->buildUrlQuery($url, $parameters),
+            $method,
+            $parameters,
+            $this->getRequestHeaders($hasData),
+            $body
+        );
 
         return $this->getRequest();
     }
@@ -288,12 +308,16 @@ class HttpClient
      */
     protected function setDefaultCurlSettings()
     {
-        $verifySsl = $this->options->verifySsl();
-        $timeout   = $this->options->getTimeout();
+        $verifySsl       = $this->options->verifySsl();
+        $timeout         = $this->options->getTimeout();
+        $followRedirects = $this->options->getFollowRedirects();
 
         \curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, $verifySsl);
         if (!$verifySsl) {
             \curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, $verifySsl);
+        }
+        if ($followRedirects) {
+            \curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, true);
         }
         \curl_setopt($this->ch, CURLOPT_CONNECTTIMEOUT, $timeout);
         \curl_setopt($this->ch, CURLOPT_TIMEOUT, $timeout);
@@ -311,17 +335,22 @@ class HttpClient
     {
         // Any non-200/201/202 response code indicates an error.
         if (!\in_array($this->response->getCode(), ['200', '201', '202'])) {
-            $errors = !empty($parsedResponse['errors']) ? $parsedResponse['errors'] : $parsedResponse;
+            $errors = isset($parsedResponse->errors) ? $parsedResponse->errors : $parsedResponse;
 
-            if (!empty($errors[0])) {
-                $errorMessage = isset($errors[0]['message']) ? $errors[0]['message'] : '';
-                $errorCode    = isset($errors[0]['code']) ? $errors[0]['code'] : '';
+            if (is_array($errors)) {
+                $errorMessage = isset($errors[0]->message) ? $errors[0]->message : '';
+                $errorCode    = isset($errors[0]->code) ? $errors[0]->code : '';
             } else {
-                $errorMessage = isset($errors['message']) ? $errors['message'] : '';
-                $errorCode    = isset($errors['code']) ? $errors['code'] : '';
+                $errorMessage = isset($errors->message) ? $errors->message : '';
+                $errorCode    = isset($errors->code) ? $errors->code : '';
             }
 
-            throw new HttpClientException(\sprintf('Error: %s [%s]', $errorMessage, $errorCode), $this->response->getCode(), $this->request, $this->response);
+            throw new HttpClientException(
+                \sprintf('Error: %s [%s]', $errorMessage, $errorCode),
+                $this->response->getCode(),
+                $this->request,
+                $this->response
+            );
         }
     }
 
@@ -334,11 +363,11 @@ class HttpClient
     {
         $body = $this->response->getBody();
 
-        if (0 === strpos(bin2hex($body), 'efbbbf')) {
-           $body = substr($body, 3);
+        if (0 === strpos(bin2hex(substr($body, 0, 4)), 'efbbbf')) {
+            $body = substr($body, 3);
         }
 
-        $parsedResponse = \json_decode($body, true);
+        $parsedResponse = \json_decode($body);
 
         // Test if return a valid JSON.
         if (JSON_ERROR_NONE !== json_last_error()) {

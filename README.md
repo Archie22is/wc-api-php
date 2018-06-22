@@ -34,7 +34,7 @@ $woocommerce = new Client(
     'cs_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
     [
         'wp_api' => true,
-        'version' => 'wc/v1',
+        'version' => 'wc/v2',
     ]
 );
 ```
@@ -56,6 +56,7 @@ $woocommerce = new Client(
 | `wp_api_prefix`     | `string` | no       | Custom WP REST API URL prefix, used to support custom prefixes created with the `rest_url_prefix` filter               |
 | `version`           | `string` | no       | API version, default is `v3`                                                                                           |
 | `timeout`           | `int`    | no       | Request timeout, default is `15`                                                                                       |
+| `follow_redirects`  | `bool`   | no       | Allow the API call to follow redirects                                                                                 |
 | `verify_ssl`        | `bool`   | no       | Verify SSL when connect, use this option as `false` when need to test with self-signed certificates, default is `true` |
 | `query_string_auth` | `bool`   | no       | Force Basic Authentication as query string when `true` and using under HTTPS, default is `false`                       |
 | `oauth_timestamp`   | `string` | no       | Custom oAuth timestamp, default is `time()`                                                                            |
@@ -135,6 +136,9 @@ try {
 
 ## Release History
 
+- 2018-03-29 - 2.0.1 - Fixed fatal errors on `lookForErrors`.
+- 2018-01-12 - 2.0.0 - Responses changes from arrays to `stdClass` objects. Added `follow_redirects` option.
+- 2017-06-06 - 1.3.0 - Remove BOM before decoding and added support for multi-dimensional arrays for oAuth1.0a.
 - 2017-03-15 - 1.2.0 - Added `user_agent` option.
 - 2016-12-14 - 1.1.4 - Fixed WordPress 4.7 compatibility.
 - 2016-10-26 - 1.1.3 - Allow set `oauth_timestamp` and improved how is handled the response headers.
