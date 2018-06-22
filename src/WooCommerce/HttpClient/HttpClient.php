@@ -367,7 +367,7 @@ class HttpClient
             $body = substr($body, 3);
         }
 
-        $parsedResponse = \json_decode($body);
+        $parsedResponse = \json_decode($body, true);
 
         // Test if return a valid JSON.
         if (JSON_ERROR_NONE !== json_last_error()) {
