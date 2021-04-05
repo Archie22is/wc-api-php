@@ -392,6 +392,9 @@ class HttpClient
      */
     public function request($endpoint, $method, $data = [], $parameters = [])
     {
+        // Keep track of request start time
+        $requestStart = microtime(true);
+        
         // Initialize cURL.
         $this->ch = \curl_init();
 
@@ -410,6 +413,19 @@ class HttpClient
         }
 
         \curl_close($this->ch);
+        
+        // Logging
+        $logMethod = $this->options->getLogMethod();
+        if ($logMethod) {
+            $timeTaken = microtime(true) - $requestStart;
+            $logMethod([
+                'time_taken' => $timeTaken,
+                'endpoint' => $endpoint,
+                'method' => $method,
+                'data' => $data,
+                'parameters' => $parameters,
+            ]);
+        }
 
         return $this->processResponse();
     }

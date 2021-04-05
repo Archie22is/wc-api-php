@@ -145,4 +145,14 @@ class Options
     {
         return isset($this->options['follow_redirects']) ? (bool) $this->options['follow_redirects'] : false;
     }
+
+    /**
+     * Get log method.
+     *
+     * @return bool
+     */
+    public function getLogMethod()
+    {
+        return isset($this->options['log_method']) ? $this->options['log_method'] : false;
+    }
 }
